@@ -36,7 +36,6 @@ function [Sim,Res]=psf_extractor(Sim,varargin)
 % Reliable: 2
 %--------------------------------------------------------------------------
 
-
 CatField = AstCat.CatField;
 
 DefV.StampHalfSize        = 10;
@@ -50,7 +49,6 @@ DefV.PSFCombinerPar       = {};
 InPar = InArg.populate_keyval(DefV,varargin,mfilename);
 
 
-
 % Find stars (if not exist)
 IsCatPop = isfield_populated(Sim,CatField);
 if (~all(IsCatPop))
@@ -62,18 +60,32 @@ Nsim = numel(Sim);
 if (Nsim==0)
     Res = [];
 end
+
 for Isim=1:1:Nsim
     % select best stars
-    [AstCatP,~] = InPar.PSFSelectorFun(Sim(Isim),InPar.PSFSelectorPar{:});
+    try
+% keyboard
+        [AstCatP,~] = InPar.PSFSelectorFun(Sim(Isim),InPar.PSFSelectorPar{:});
+        
+        % remove hot pixels:
+        Target = AstCatP.Cat(:,AstCatP.Col.ELONGATION) == 0 | isnan(AstCatP.Cat(:,AstCatP.Col.ELONGATION)) |...
+                (AstCatP.Cat(:,AstCatP.Col.X2WIN_IMAGE) > -0.2 & AstCatP.Cat(:,AstCatP.Col.X2WIN_IMAGE) < 0.2) |...
+                (AstCatP.Cat(:,AstCatP.Col.Y2WIN_IMAGE) > -0.2 & AstCatP.Cat(:,AstCatP.Col.Y2WIN_IMAGE) < 0.2);
+        AstCatP.Cat(Target,:)=[];
+        
+        % prepare cube of stars
+        XY = col_get(AstCatP,InPar.PosCols);
+        CubePSF = stamp_xy(Sim(Isim),XY,'StampSize',InPar.StampHalfSize,'Align',false,'HalfPixShift',false,'OutType','cube','UpdateWCS',false);
 
-    % prepare cube of stars
-    XY = col_get(AstCatP,InPar.PosCols);
-    CubePSF = stamp_xy(Sim(Isim),XY,'StampSize',InPar.StampHalfSize,'Align',false,'HalfPixShift',false,'OutType','cube','UpdateWCS',false);
-
-    % combine cube to PSF
-    [CPSF,Res(Isim)]=ImUtil.Im.psf_combiner(CubePSF,InPar.PSFCombinerPar{:});
-
-    % add PSF to Sim
-    Sim(Isim).PSF    = CPSF.PSF;
-    Sim(Isim).ErrPSF = CPSF.ErrPSF;
+        % combine cube to PSF
+        [CPSF,Res(Isim)]=ImUtil.Im.psf_combiner(CubePSF,InPar.PSFCombinerPar{:});
+        
+        % add PSF to Sim
+        Sim(Isim).PSF    = CPSF.PSF;
+        Sim(Isim).ErrPSF = CPSF.ErrPSF;
+    catch
+        load DefaultPSF.mat
+        Sim(Isim).PSF    = CPSF.PSF;
+        Sim(Isim).ErrPSF = CPSF.ErrPSF;
+    end
 end

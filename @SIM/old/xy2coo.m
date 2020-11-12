@@ -16,7 +16,7 @@ function Coo=xy2coo(Sim,varargin)
 % Example:  S.xy2coo(1,1)
 % Reliable: 2
 %--------------------------------------------------------------------------
-
+keyboard
 Nsim = numel(Sim);
 %Coo  = struct('RA',cell(Nsim,1),'Dec',cell(Nsim,1));
 Coo  = astcatdef(size(Sim));

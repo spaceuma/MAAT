@@ -26,7 +26,7 @@ classdef HDF5
     % Basic high level static methods: save, load
     methods (Static)
         % simple save array
-        function save(Data,FileName,VarName,Attrib,WriteMode)
+        function save(Data,FileName,VarName,Attrib)
             % save a new array into an HDF5 file dataset
             % Package: @HDF5
             % Description: A simple and fast save HDF5 for arrays
@@ -34,12 +34,9 @@ classdef HDF5
             %          - HDF5 file name to save.
             %          - HDF5 dataset name. Default is '/V'.
             %          - A two column cell array of attribute key,val.
-           
-            
-            
+%             keyboard
             Def.VarName = '/V';
             Def.Attrib  = {};
-           
            
             if (nargin<4)
                 Attrib  = Def.Attrib;
@@ -109,7 +106,7 @@ classdef HDF5
             
         end
         
-        function Data=load(FileName,VarName,Offset,Block)
+        function Data=load(FileName,VarName,Catalog_Path,Offset,Block)
             % load an array from a HDF5 
             % Package: @HDF5
             % Input  : - HDF5 file name.
@@ -118,48 +115,41 @@ classdef HDF5
             %            uploading. If not given than get the entire array.
             %          - [I,J] block size to upload from array.
             % Output : - An array
-            
-            FID = H5F.open(FileName); 
+%             keyboard
+            FID = H5F.open(strcat(Catalog_Path,'\data\',FileName));
+%             FID = H5F.open(FileName); 
             DSetID = H5D.open(FID,VarName);
-            if (nargin>2)
-                % User requested for specific location in the array
-                Plist = 'H5P_DEFAULT';
-                %Space = H5D.get_space(DSetID);
-                %[~,Dims] = H5S.get_simple_extent_dims(Space);
-                
-                Dims = double(fliplr(Block));
-                MemSpaceID = H5S.create_simple(numel(Dims),Dims,[]);
-                FileSpaceID = H5D.get_space(DSetID);
-                Offset = double(fliplr(Offset-1));  % index start at 0
-                Block = double(fliplr(Block));
-                H5S.select_hyperslab(FileSpaceID,'H5S_SELECT_SET',Offset,[],[],Block);
-                Data = H5D.read(DSetID,'H5ML_DEFAULT',MemSpaceID,FileSpaceID,Plist);
-            else
+%             toc
+%             if (nargin>3)
+%                 keyboard
+%                 % User requested for specific location in the array
+%                 Plist = 'H5P_DEFAULT';
+%                 %Space = H5D.get_space(DSetID);
+%                 %[~,Dims] = H5S.get_simple_extent_dims(Space);
+%                 
+%                 Dims = double(fliplr(Block));
+%                 MemSpaceID = H5S.create_simple(numel(Dims),Dims,[]);
+%                 FileSpaceID = H5D.get_space(DSetID);
+%                 Offset = double(fliplr(Offset-1));  % index start at 0
+%                 Block = double(fliplr(Block));
+%                 H5S.select_hyperslab(FileSpaceID,'H5S_SELECT_SET',Offset,[],[],Block);
+%                 Data = H5D.read(MagCol,MagnitudeThreshhold,DSetID,'H5ML_DEFAULT',MemSpaceID,FileSpaceID,Plist);
+%             else
                 Data = H5D.read(DSetID);
-            end
-            
+%                 MagCol
+%                 MagnitudeThreshhold
+
+%             end
+%             OkSource=Data(Data(:,16)<14,:);
+%             H5S.set_extent_simple(DSetID,3,fliplr([size(Data,1) size(Data,2)]),fliplr([size(OkSource,1) size(OkSource,2)]))
+%             H5D.write(DSetID,'H5ML_DEFAULT','H5S_ALL','H5S_ALL','H5P_DEFAULT',OkSource);
+%             H5D.write(DSetID,Data);
             % Read attributes
             % FFU
-            
+%             keyboard
             H5D.close(DSetID);
             H5F.close(FID);
             
-        end
-        
-        function writeatt(FileName,DatasetName,AttribCell)
-            % Write attributes into HDF5 file
-            % Input  : - FileName
-            %          - Dataset name
-            %          - Cell array of pairs of attributes: key,val,...
-            fileattrib(FileName,'+w');
-            
-            N = numel(AttribCell);
-            if ((N./2)~=floor(N./2))
-                error('Number of key,val attributes must be even');
-            end
-            for I=1:2:N-1
-                h5writeatt(FileName,DatasetName,AttribCell{I},AttribCell{I+1});
-            end
         end
         
         function Data=load_muti_datasets(FileName,VarNames)
@@ -273,7 +263,7 @@ classdef HDF5
     
         end
         
-        function Var=load_check(FileName,VarName,StoreWS,WS)
+        function Var=load_check(FileName,VarName,Catalog_Path,StoreWS,WS)
             % Load a variable from an HDF5 file or session (if exist)
             % Package: @HDF5
             % Description: Load a variable from an HDF5 file, but first
@@ -291,20 +281,20 @@ classdef HDF5
 
             Def.StoreWS = true;
             Def.WS = 'base';
-            if (nargin==2)
+            if (nargin==3)
                StoreWS = Def.StoreWS;
                WS      = Def.WS;
-            elseif (nargin==3)
-               WS      = Def.WS;
             elseif (nargin==4)
+               WS      = Def.WS;
+            elseif (nargin==5)
                % do nothing
             end
-            
+%             keyboard
             try
                 Var = evalin(WS,sprintf('%s;',VarName));
             catch
                 % variable doesn't exist in workspace
-                Var = HDF5.load(FileName,VarName);
+                Var = HDF5.load(FileName,VarName,Catalog_Path);
                if (StoreWS)
                     assignin(WS,VarName,Var);
                end
@@ -690,8 +680,7 @@ classdef HDF5
             %          - Search radius [radians].
             % Example: ID=HDF5.search_htm_ind('UCAC4_htm.hdf5',[],1,1,0.001)
             % Reliable: 2
-            
-            
+%             keyboard
             Check = true;
             if (isempty(VarName))
                 Tmp = regexp(FileName,'_','split');

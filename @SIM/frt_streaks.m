@@ -14,7 +14,7 @@ function []=frt_streaks(S,varargin)
 %--------------------------------------------------------------------------
 
 ImageField = SIM.ImageField;
-PSFField   = 
+% PSFField   = 
 
 DefV.SubBack              = true;
 DefV.BackPar              = {};

@@ -24,10 +24,10 @@ function []=astrometry_refine(AC,varargin)
 %--------------------------------------------------------------------------
 
 
-DefV.EpochJD              = 
-
-DefV.ColX                 = 
-DefV.ColY                 =
+% DefV.EpochJD              = 
+% 
+% DefV.ColX                 = 
+% DefV.ColY                 =
 DefV.ColRA                = {'RA','ALPHAWIN_J2000'};
 DefV.ColDec               = {'Dec','DELTAWIN_J2000'};
 DefV.CooUnits             = 'rad';
