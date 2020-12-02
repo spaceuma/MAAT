@@ -116,7 +116,8 @@ classdef HDF5
             %          - [I,J] block size to upload from array.
             % Output : - An array
 %             keyboard
-            FID = H5F.open(strcat(Catalog_Path,'\data\',FileName));
+            [Slash,~] = SOCheck;
+            FID = H5F.open(strcat(Catalog_Path,Slash,'data',Slash,FileName));
 %             FID = H5F.open(FileName); 
             DSetID = H5D.open(FID,VarName);
 %             toc

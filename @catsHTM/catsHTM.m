@@ -938,8 +938,8 @@ classdef catsHTM
 
             %Ncol = 45;
             %Ncol = 8;
-
-            load([Catalog_Path,'\index\',InPar.ColCellFile]);
+            [Slash,~] = SOCheck;
+            load([Catalog_Path,Slash,'index',Slash,InPar.ColCellFile]);
 %             load(strcat('C:\TransientDetection\catalogs\index\',InPar.ColCellFile));
             
             Ncol  = numel(ColCell);
@@ -961,8 +961,8 @@ classdef catsHTM
                     FolderPath = 'GAIA/DR2/';
             elseif contains(InPar.ColCellFile,'URAT')
                     FolderPath = 'URAT1/';
-            elseif contains(InPar.ColCellFile,'PS1')
-                    FolderPath = 'PS1/';
+            elseif contains(InPar.ColCellFile,'ztf')
+                    FolderPath = 'ZTF/ztfDR1var/';
             end
             
             while ~LoadBool || nAttemp > 20
@@ -992,7 +992,7 @@ classdef catsHTM
                 catch ME
 %                     keyboard
                     nAttemp =  nAttemp + 1;
-                    websave([char(Catalog_Path),'\data\',sprintf(InPar.CatFileTemplate,CatName,FileID(Iid))],['https://astro.weizmann.ac.il/catsHTM/',FolderPath,sprintf(InPar.CatFileTemplate,CatName,FileID(Iid))])
+                    websave([char(Catalog_Path),Slash,'data',Slash,sprintf(InPar.CatFileTemplate,CatName,FileID(Iid))],['https://astro.weizmann.ac.il/catsHTM/',FolderPath,sprintf(InPar.CatFileTemplate,CatName,FileID(Iid))])
                 end
             
             end
