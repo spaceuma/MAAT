@@ -214,7 +214,7 @@ DefV.ColCell            = {'XWIN_IMAGE','YWIN_IMAGE','XPEAK_IMAGE','YPEAK_IMAGE'
                            'THETA','ELONGATION','ELLIPTICITY',...
                            'ALPHAWIN_J2000','DELTAWIN_J2000',...
                            'SN_PSF',...
-                           'FLUX_PSF','MAG_PSF','PSF_CHI2','PSF_CHI2BACK','PSF_CHI2CR',...
+                           'FLUX_PSF','FLUXERR_PSF','MAG_PSF','MAGERR_PSF','PSF_CHI2','PSF_CHI2BACK','PSF_CHI2CR',...
                            'FLAGS'};
 % Force positions
 DefV.ForcePos           = [];
@@ -322,9 +322,9 @@ DefV.DiffSpikePar       = {};
 DefV.CleanDiffSpike     = true;
 DefV.Bit_Spike          = 'Bit_Spike';
 
-DefV.SearchCR           = true;
+DefV.SearchCR           = false;
 DefV.MethodCR           = {'chi2backcr'}; % {'SN_UNFfit','chi2backcr'};
-DefV.CleanCR            = true;
+DefV.CleanCR            = false;
 DefV.CleanBitNames      = {'Bit_CR','Bit_CR_MEXTRACTOR'};
 
 % Output
@@ -362,8 +362,8 @@ end
 if (InPar.Verbose)
     fprintf('  Set gain to 1\n');
 end
-Sim = gain_correct(Sim,'GainKeys',InPar.Gain,'ExecField',{ImageField,BackField,ErrField},'ExecFieldSqrt',{},...
-                       'CatColUpdate',{},'OrigGainKey',InPar.OrigGainKey);
+% Sim = gain_correct(Sim,'GainKeys',InPar.Gain,'ExecField',{ImageField,BackField,ErrField},'ExecFieldSqrt',{},...
+%                        'CatColUpdate',{},'OrigGainKey',InPar.OrigGainKey);
         
 
 
@@ -492,7 +492,7 @@ switch lower(InPar.OutCooUnits)
 end
         
 
-
+% keyboaropen Imcad
 %---------------------
 %--- ForcePos list ---
 %---------------------
@@ -529,11 +529,12 @@ end
 
 % back/std calculation
 if (any(~ExistBack) || any(~ExistStd))
-    % some BackIm, ErrIm fields need to be recalculated
-    % don't subtract background from image
+%     some BackIm, ErrIm fields need to be recalculated
+%     don't subtract background from image
     if (InPar.Verbose)
         fprintf('  Estimate images background and std\n');
     end
+    
     Sim = background(Sim,InPar.BackPar{:},'SubBack',false);
 end
 
@@ -553,14 +554,14 @@ end
 %--- Subtract background from images ---
 %---------------------------------------
 if (~InPar.BackSub)
-    % Background was not pre-subtracted by user
-    % subtract background
+%     % Background was not pre-subtracted by user
+%     % subtract background
     if (InPar.Verbose)
         fprintf('  Subtract background\n');
     end
     SimB = sub_background(Sim);
 else
-    % User supplied a background subtracted images
+%     % User supplied a background subtracted images
     SimB = Sim;
 end
     
@@ -620,6 +621,7 @@ Calc.BWconn = any(strcmp(InPar.ColCell,'CAREA')) || ...
               any(strcmp(InPar.ColCell,'Y2_IMAGE')) || ...
               any(strcmp(InPar.ColCell,'XY_IMAGE')) || ...
               any(strcmp(InPar.ColCell,'FLUX_ISO'));
+
 Calc.Near   = any(strcmp(InPar.ColCell,'NEAREST_SRCIND')) || ...
               any(strcmp(InPar.ColCell,'NEAREST_SRCDIST'));
 Calc.Flags  = any(strcmp(InPar.ColCell,'FLAGS'));
@@ -1045,11 +1047,11 @@ for Isim=1:1:Nsim
     
     
     if (Calc.Near)
-        [XY,SI] = sortrows([Mom1.X, Mom1.Y],2);
+%         [XY,SI] = sortrows([Mom1.X, Mom1.Y],2);
         % need a better search_cat.m (nicer for the user)
-        ResNear = VO.search.search_cat(XY,XY,[],'CooType','plane',...
-                                                        'SearchMethod','binmdup',...
-                                                        'SearchRad',InPar.NearSearchRad);
+%         ResNear = VO.search.search_cat(XY,XY,[],'CooType','plane',...
+%                                                         'SearchMethod','binmdup',...
+%                                                         'SearchRad',InPar.NearSearchRad);
     
     end
     
@@ -1612,13 +1614,13 @@ for Isim=1:1:Nsim
             case 'NEAREST_SRCDIST'
                 % Distance to nearest source [pixels]
                 % NaN if no source within search radius (InPar.NearSearchRad)
-                Cat(Isim).(CatField)(:,Icol) = NaN;
-                FlagNfound = [ResNear.Nfound]>0; 
-                Cat(Isim).(CatField)(FlagNfound,Icol) = cat(1,ResNear.DistRAD);   
+%                 Cat(Isim).(CatField)(:,Icol) = NaN;
+%                 FlagNfound = [ResNear.Nfound]>0; 
+%                 Cat(Isim).(CatField)(FlagNfound,Icol) = cat(1,ResNear.DistRAD);   
                 
-                if (any(cat(1,ResNear.DistRAD))<1)
-                    warning('There are some distance smaller than 1 - check why');
-                end
+%                 if (any(cat(1,ResNear.DistRAD))<1)
+%                     warning('There are some distance smaller than 1 - check why');
+%                 end
                   
             otherwise
                 error('Unknown requested column: %s in the ColCell input argument',ColCell{Icol});
@@ -1661,7 +1663,7 @@ for Isim=1:1:Nsim
     
     if (InPar.SearchCR)
         % check if can perform CR
-        
+%         keyboard
         if (~isnan(col_get(Cat(Isim),'PSF_CHI2BACK') ))
         
             for IcrMethod=1:1:numel(InPar.MethodCR)

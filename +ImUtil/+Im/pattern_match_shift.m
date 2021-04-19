@@ -176,6 +176,14 @@ end
 % Vectors of X/Y coordinates
 Xcat = SubCat(:,InPar.ColXc);
 Ycat = SubCat(:,InPar.ColYc);
+
+auxMat = [Xcat Ycat];
+auxMat = sortrows(auxMat,2,'ascend');
+Xcat = auxMat(:,1);
+Ycat = auxMat(:,2);
+
+
+
 Xref = SubRef(:,InPar.ColXr);
 Yref = SubRef(:,InPar.ColYr);
 

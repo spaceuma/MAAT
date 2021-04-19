@@ -83,7 +83,7 @@ for Isim=1:1:Nsim
             [~,ColIndX]   = select_exist_colnames(Sim(Isim),InPar.ColX');
             [~,ColIndY]   = select_exist_colnames(Sim(Isim),InPar.ColY');
             [~,ColIndMag] = select_exist_colnames(Sim(Isim),InPar.ColMag');
-
+            
             Delta       = col_get(Sim(Isim),'SN') - col_get(Sim(Isim),'SN_UNF');
             Mag         = col_get(Sim(Isim),ColIndMag);
            

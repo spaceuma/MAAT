@@ -61,7 +61,7 @@ function [AstC,AllFlag]=psf_cat_selector(AstC,varargin)
 % Example: [AstC,AllFlag]=psf_cat_selector(AstC);
 % Reliable: 2
 %--------------------------------------------------------------------------
-
+% keyboard
 
 DefV.PosCol             = {'XWIN_IMAGE','YWIN_IMAGE'};
 DefV.BoundryDist        = 10;
@@ -79,7 +79,7 @@ DefV.SelectQuant        = {};
 %                            'Y2WIN_IMAGE',0.0,0.3;...
 %                            'XYWIN_IMAGE',0.4,0.6};
 %                        
-DefV.SatLevel           = 60000;  % e- % or key name or cell of key names
+DefV.SatLevel           = 1e7;  % e- % or key name or cell of key names
 DefV.ColMaxFlux         = 'PEAKF_VALTOT'; %'FLUX_MAX';
 DefV.ColSN              = 'SN'; %FLUX_APER./FLUXERR_APER';   % 'SN'
 DefV.MinSN              = 15;
